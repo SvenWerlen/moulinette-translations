@@ -2,8 +2,10 @@
 import os
 import json
 import re
+import sys
 import subprocess
 
+DYNAMIC=sys.argv[1] if len(sys.argv) > 1 else None
 TRANSLATIONS = ["en", "fr", "ja"]
 
 COMMAND = "find -type f \( -name \"*.hbs\" -o -name \"*.js\" \) -exec grep \"mtte\.\" {} \;"
@@ -25,6 +27,12 @@ for transISO in TRANSLATIONS:
     else:
       print("Translation %s not found: %s" % (transISO, key))
 
+  # add all dynamic translations
+  if DYNAMIC:
+    for key in tr:
+      if key.startswith("mtte." + DYNAMIC):
+        translations[key] = tr[key]
+
   # write translations
   with open('lang/%s.json' % transISO, 'w') as f:
-    json.dump(translations, f, indent = 2, sort_keys=True)
+    json.dump(translations, f, indent = 2, sort_keys=True, ensure_ascii=False)
